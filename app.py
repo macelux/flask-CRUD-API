@@ -63,18 +63,40 @@ def get_products():
     result = products_schema.dump(all_products) 
     return jsonify(result)
 
-# Get Single Product
-@app.route('/product/<id>', methods=['GET'])
-def get_product(id):
-    product = Product.query.get(id) 
-    return product_schema.jsonify(product)
 
 # Update a Product
-@app.route('/product/<id>', methods=['GET'])
+@app.route('/product/<id>', methods=['PUT'])
 def get_product(id):
+    product = Product.query.get(id) #fetch product
+
+    name = request.json['name']
+    description = request.json['description']
+    price = request.json['price']
+    qty = request.json['qty'] 
+
+    product.name = name
+    product.description = description
+    product.price = price
+    product.qty = qty
+
+    db.session.commit()
+
+    return product_schema.jsonify(product)
+
+# Get Single Product
+@app.route('/product/<id>', methods=['GET'])
+def update_product(id):
     product = Product.query.get(id) 
     return product_schema.jsonify(product)
 
+# Delete Product
+@app.route('/product/<id>', methods=['DELETE'])
+def delete_product(id):
+    product = Product.query.get(id)
+    db.session.delete(product)
+    db.session.commit()
+
+    return product_schema.jsonify(product)
 
 # RUn server 
 if __name__ == "__main__":
