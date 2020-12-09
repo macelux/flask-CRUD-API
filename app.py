@@ -3,7 +3,7 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_marshmallow import Marshmallow
 import os
 
-# Init app
+## Init app
 app = Flask(__name__)
 basedir = os.path.abspath(os.path.dirname(__file__))
 
@@ -16,7 +16,8 @@ db = SQLAlchemy(app)
 # Initialize Ma
 ma = Marshmallow(app)
 
-# Producr Class.Model
+
+## Producr Class.Model
 class Product(db.Model):
     id = db.Column(db.Integer, primary_key= True)
     name = db.Column(db.String(100), unique = True)
@@ -30,17 +31,22 @@ class Product(db.Model):
         self.price = price
         self.qty = qty
 
-# Product Schema
+## Product Schema
 class ProductSchema(ma.Schema):
     class Meta:
         fields =('id', 'name', 'description', 'price','qty')
 
-# Init Schema
+
+
+## Init Schema
 product_schema = ProductSchema()
 products_schema = ProductSchema(many=True)
 
-## Create EndPoints
-#create a Product
+
+
+
+#### Create EndPoints #####
+## create a Product
 @app.route('/product', methods=['POST'])
 def add_product():
     name = request.json['name']
@@ -52,22 +58,25 @@ def add_product():
 
     # add to db
     db.session.add(new_product)
-    db.session.commit()
+    db.session.commit() #commit to database
 
     return product_schema.jsonify(new_product)
 
-# Get All Products
+## Get All Products
 @app.route('/product', methods=['GET'])
 def get_products():
+     #fetch all products
     all_products = Product.query.all()
+
     result = products_schema.dump(all_products) 
     return jsonify(result)
 
 
-# Update a Product
+## Update a Product
 @app.route('/product/<id>', methods=['PUT'])
 def get_product(id):
-    product = Product.query.get(id) #fetch product
+    #fetch product
+    product = Product.query.get(id) 
 
     name = request.json['name']
     description = request.json['description']
@@ -79,26 +88,34 @@ def get_product(id):
     product.price = price
     product.qty = qty
 
-    db.session.commit()
+    db.session.commit()  #commit to db
 
     return product_schema.jsonify(product)
 
-# Get Single Product
+## Get Single Product
 @app.route('/product/<id>', methods=['GET'])
 def update_product(id):
+     #fetch product
     product = Product.query.get(id) 
+
     return product_schema.jsonify(product)
 
-# Delete Product
+
+
+## Delete Product
 @app.route('/product/<id>', methods=['DELETE'])
 def delete_product(id):
+    #fetch product
     product = Product.query.get(id)
+
     db.session.delete(product)
-    db.session.commit()
+    db.session.commit() #commit to database
 
     return product_schema.jsonify(product)
 
-# RUn server 
+
+
+## RUn server 
 if __name__ == "__main__":
    #Keep our server running, set debu = true
    app.run(debug=True)
